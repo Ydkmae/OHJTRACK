@@ -63,9 +63,11 @@ function renderTraineeDtr(user){
   const rec = getOrCreateDtr(user.id, mk);
   const nDays = daysInMonth(mk);
   let rows = '';
+  let totalAll = 0;
   for(let d=1; d<=nDays; d++){
     const e = rec.entries[d] || {};
     const h = computeDayHours(e);
+    totalAll += h.total;
     rows += `<tr>
       <td class="day-cell">${d}</td>
       <td><input type="time" data-day="${d}" data-field="amIn" value="${e.amIn||''}"></td>
@@ -74,7 +76,7 @@ function renderTraineeDtr(user){
       <td><input type="time" data-day="${d}" data-field="pmOut" value="${e.pmOut||''}"></td>
       <td><input type="time" data-day="${d}" data-field="otIn" value="${e.otIn||''}"></td>
       <td><input type="time" data-day="${d}" data-field="otOut" value="${e.otOut||''}"></td>
-      <td class="hrs-cell">${h.total.toFixed(1)}</td>
+      <td class="hrs-cell">${h.total? h.total.toFixed(2):''}</td>
       <td>
         ${e.photo?`<img src="${e.photo}" class="thumb" data-viewphoto="${e.photo}">`:''}
         <label class="btn btn-outline photo-btn" style="cursor:pointer;">${e.photo?'Change':'+'}<input type="file" accept="image/*" data-photoday="${d}" style="display:none;"></label>
@@ -96,12 +98,22 @@ function renderTraineeDtr(user){
     <div class="stat-card"><div class="num">${agg.total.toFixed(1)}</div><div class="lbl">Total hours this month</div></div>
     <div class="stat-card"><div class="num">${agg.daysLogged}</div><div class="lbl">Days logged</div></div>
   </div>
-  <div class="card"><div class="card-head"><h2>${monthLabel(mk)}</h2></div>
+  <div class="card"><div class="card-head"><h2>Daily Time Record &mdash; ${monthLabel(mk)}</h2></div>
     <div class="card-body" style="overflow-x:auto;">
+      <div class="dtr-meta">
+        <div><span>Name:</span> ${esc(user.name)}</div>
+        <div><span>Course:</span> ${esc(user.program||'—')}</div>
+        <div><span>Agency:</span> ${esc(user.company||'—')}</div>
+        <div><span>Month:</span> ${monthLabel(mk)}</div>
+        <div><span>Official Hours:</span> ${esc(user.officialHours||'—')}</div>
+      </div>
       <table class="dtr-input-table">
-        <thead><tr><th rowspan="1">Day</th><th colspan="2">Morning</th><th colspan="2">Afternoon</th><th colspan="2">Overtime</th><th>Hours</th><th>Timemark Photo</th></tr>
-        <tr><th></th><th>In</th><th>Out</th><th>In</th><th>Out</th><th>In</th><th>Out</th><th></th><th></th></tr></thead>
+        <thead>
+          <tr><th rowspan="2">Day</th><th colspan="2">Morning</th><th colspan="2">Afternoon</th><th colspan="2">Overtime</th><th rowspan="2">Total Hours</th><th rowspan="2">Timemark Photo</th></tr>
+          <tr><th>In</th><th>Out</th><th>In</th><th>Out</th><th>In</th><th>Out</th></tr>
+        </thead>
         <tbody>${rows}</tbody>
+        <tfoot><tr><td colspan="7" class="total-label">TOTAL HOURS</td><td class="hrs-cell">${totalAll.toFixed(2)}</td><td></td></tr></tfoot>
       </table>
     </div>
   </div>`;
@@ -120,7 +132,7 @@ function renderDtrPrintView(user){
     const h = computeDayHours(e);
     totalAll += h.total;
     rows += `<tr>
-      <td>${d}</td><td>${e.amIn||''}</td><td>${e.amOut||''}</td><td>${e.pmIn||''}</td><td>${e.pmOut||''}</td><td>${e.otIn||''}</td><td>${e.otOut||''}</td>
+      <td>${d}</td><td>${fmtTime12(e.amIn)}</td><td>${fmtTime12(e.amOut)}</td><td>${fmtTime12(e.pmIn)}</td><td>${fmtTime12(e.pmOut)}</td><td>${fmtTime12(e.otIn)}</td><td>${fmtTime12(e.otOut)}</td>
       <td>${h.total? h.total.toFixed(2):''}</td><td></td>
     </tr>`;
   }
@@ -140,17 +152,27 @@ function renderDtrPrintView(user){
       </div>
       <div style="width:56px;"></div>
     </div>
-    <div class="of-title">DAILY TIME RECORD</div>
-    <div class="of-namewrap"><div class="of-name">${esc(t.name)}</div></div>
-    <div class="of-sub">${esc(t.program||'Course')}</div>
-    <div class="of-meta">
-      <div>Agency: ${esc(t.company||'—')}</div>
-      <div>Month: ${monthLabel(mk)}</div>
+    <div class="of-title">DAILY  TIME  RECORD</div>
+    <div class="of-fields">
+      <div class="of-row">
+        <div class="of-fill grow"><span class="lbl">Name:</span><span class="val">${esc(t.name)}</span></div>
+        <div class="of-fill"><span class="lbl">Course:</span><span class="val">${esc(t.program||'')}</span></div>
+      </div>
+      <div class="of-row">
+        <div class="of-fill grow"><span class="lbl">Agency:</span><span class="val">${esc(t.company||'')}</span></div>
+      </div>
+      <div class="of-row">
+        <div class="of-fill"><span class="lbl">Month:</span><span class="val">${monthLabel(mk)}</span></div>
+        <div class="of-fill grow"><span class="lbl">Official Hours:</span><span class="val">${esc(t.officialHours||'')}</span></div>
+      </div>
     </div>
     <table class="official">
-      <thead><tr><th>Day</th><th>Morning In</th><th>Morning Out</th><th>Afternoon In</th><th>Afternoon Out</th><th>OT In</th><th>OT Out</th><th>Total Hours</th><th>Certified By</th></tr></thead>
+      <thead>
+        <tr><th rowspan="2">Day</th><th colspan="2">Morning</th><th colspan="2">Afternoon</th><th colspan="2">Overtime</th><th rowspan="2">Total Hours</th><th rowspan="2">Certified By</th></tr>
+        <tr><th>In</th><th>Out</th><th>In</th><th>Out</th><th>In</th><th>Out</th></tr>
+      </thead>
       <tbody>${rows}</tbody>
-      <tfoot><tr><td colspan="7" style="text-align:right;font-weight:700;">TOTAL HOURS</td><td style="font-weight:700;">${totalAll.toFixed(2)}</td><td></td></tr></tfoot>
+      <tfoot><tr><td colspan="7" class="total-label">TOTAL HOURS</td><td class="total-val">${totalAll.toFixed(2)}</td><td></td></tr></tfoot>
     </table>
     <div class="of-cert">I certify on my honor that the above is a true and correct report of the hours of work performed, which was made daily at the time of IN and OUT from office.</div>
     <div class="of-sign">
@@ -288,6 +310,7 @@ function renderTraineeSettings(user){
           <div class="field"><label>Program</label><input type="text" name="program" value="${esc(user.program||'')}"></div>
           <div class="field"><label>Block / Section</label><input type="text" name="block" value="${esc(user.block||'')}"></div>
           <div class="field"><label>HTE / Company</label><input type="text" name="company" value="${esc(user.company||'')}"></div>
+          <div class="field"><label>Official Hours</label><input type="text" name="officialHours" value="${esc(user.officialHours||'')}" placeholder="e.g. 8:00 AM - 5:00 PM"></div>
         </div>
         <button type="submit" class="btn btn-gold">Save Profile</button>
       </form>
@@ -394,7 +417,7 @@ function bindTraineeEvents(user){
     e.preventDefault();
     const fd = new FormData(profileForm);
     user.name = fd.get('name').trim(); user.email = fd.get('email').trim();
-    user.campus = fd.get('campus')||''; user.program = fd.get('program')||''; user.block = fd.get('block')||''; user.company = fd.get('company')||'';
+    user.campus = fd.get('campus')||''; user.program = fd.get('program')||''; user.block = fd.get('block')||''; user.company = fd.get('company')||''; user.officialHours = fd.get('officialHours')||'';
     await saveDB('users'); ui.settingsMsg='Profile updated.'; render();
   };
   const photoInput = document.getElementById('profilePhotoInput');

@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS trainee_profiles (
   supervisor TEXT,
   coordinator_id TEXT REFERENCES users(id) ON DELETE SET NULL,
   required_hours NUMERIC(8,2) NOT NULL DEFAULT 486,
+  official_hours TEXT,
   active BOOLEAN NOT NULL DEFAULT TRUE,
   archived BOOLEAN NOT NULL DEFAULT FALSE
 );
@@ -138,6 +139,8 @@ CREATE INDEX IF NOT EXISTS notifications_trainee_read_idx ON notifications (trai
 CREATE INDEX IF NOT EXISTS weekly_reports_trainee_id_idx ON weekly_reports (trainee_id);
 CREATE INDEX IF NOT EXISTS letters_trainee_id_idx ON letters (trainee_id);
 CREATE INDEX IF NOT EXISTS audit_logs_created_at_idx ON audit_logs (created_at DESC);
+
+ALTER TABLE trainee_profiles ADD COLUMN IF NOT EXISTS official_hours TEXT;
 
 -- `data` preserves the frontend's complete JSON object while the named columns
 -- above provide a path for progressively normalizing reports and queries.
