@@ -234,11 +234,21 @@ table.official .total-val{font-weight:700;}
 .report-body-print{font-size:11px;line-height:1.6;white-space:pre-wrap;border:1px solid #111;padding:12px;margin-top:10px;min-height:120px;}
 .grade-box{display:flex;justify-content:space-between;margin-top:14px;font-size:11px;}
 
+@page{size:A4 portrait;margin:8mm;}
 @media print{
   body *{visibility:hidden;}
   #dtrPrintArea, #dtrPrintArea *, #reportPrintArea, #reportPrintArea *{visibility:visible;}
-  #dtrPrintArea, #reportPrintArea{display:block;position:absolute;top:0;left:0;width:100%;background:#fff;}
+  #dtrPrintArea, #reportPrintArea{display:block;position:absolute;top:0;left:0;width:100%;padding:0;background:#fff;}
   .print-toolbar{display:none;}
+  .official-form{max-width:none;border:none;padding:0;page-break-inside:avoid;}
+  .of-title{margin:8px 0 6px;}
+  .of-fields{margin:8px 0 6px;}
+  .of-row{margin-bottom:5px;}
+  table.official{font-size:8.6px;}
+  table.official th, table.official td{padding:1.6px 3px;}
+  table.official tbody td{height:auto;line-height:1.25;}
+  .of-cert{margin-top:9px;}
+  .of-sign{margin-top:20px;}
 }
 
 .doc-notes{font-size:12px;color:var(--text-muted);max-width:260px;}
