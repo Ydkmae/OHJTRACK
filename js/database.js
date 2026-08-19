@@ -30,6 +30,13 @@ function daysInMonth(mk){ const [y,m]=mk.split('-').map(Number); return new Date
 function todayStr(){ return new Date().toISOString().slice(0,10); }
 function nowIso(){ return new Date().toISOString(); }
 function fmtDateShort(d){ return new Date(d+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
+function fmtTime12(t){
+  if(!t) return '';
+  const [h,m] = t.split(':').map(Number);
+  const suffix = h>=12 ? 'PM' : 'AM';
+  const hour12 = h%12 === 0 ? 12 : h%12;
+  return hour12+':'+String(m).padStart(2,'0')+' '+suffix;
+}
 function timeAgo(iso){
   const diff = (Date.now()-new Date(iso).getTime())/1000;
   if(diff<60) return 'just now';

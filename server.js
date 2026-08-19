@@ -48,7 +48,7 @@ async function readUsers(){
   const result = await pool.query(`SELECT u.id, u.role, u.name, u.email, u.password, u.status,
     u.department, u.theme, u.photo, u.created_at AS "createdAt", p.student_id AS "studentId",
     p.campus, p.program, p.block, p.company, p.supervisor, p.coordinator_id AS "coordinatorId",
-    p.required_hours AS "requiredHours", p.active, p.archived
+    p.required_hours AS "requiredHours", p.official_hours AS "officialHours", p.active, p.archived
     FROM users u LEFT JOIN trainee_profiles p ON p.user_id = u.id ORDER BY u.created_at, u.id`);
   return result.rows;
 }
@@ -65,14 +65,15 @@ async function saveUsers(users){
         photo=EXCLUDED.photo, updated_at=NOW()`, [user.id, user.role, user.name, user.email, user.password,
         user.status || 'pending', user.department || null, user.theme || 'light', user.photo || null, user.createdAt || new Date().toISOString().slice(0,10)]);
       if(user.role === 'trainee'){
-        await client.query(`INSERT INTO trainee_profiles (user_id, student_id, campus, program, block, company, supervisor, coordinator_id, required_hours, active, archived)
-          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+        await client.query(`INSERT INTO trainee_profiles (user_id, student_id, campus, program, block, company, supervisor, coordinator_id, required_hours, official_hours, active, archived)
+          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
           ON CONFLICT (user_id) DO UPDATE SET student_id=EXCLUDED.student_id, campus=EXCLUDED.campus,
           program=EXCLUDED.program, block=EXCLUDED.block, company=EXCLUDED.company, supervisor=EXCLUDED.supervisor,
-          coordinator_id=EXCLUDED.coordinator_id, required_hours=EXCLUDED.required_hours, active=EXCLUDED.active, archived=EXCLUDED.archived`,
+          coordinator_id=EXCLUDED.coordinator_id, required_hours=EXCLUDED.required_hours,
+          official_hours=EXCLUDED.official_hours, active=EXCLUDED.active, archived=EXCLUDED.archived`,
           [user.id, user.studentId || null, user.campus || null, user.program || null, user.block || null,
           user.company || null, user.supervisor || null, user.coordinatorId || null, user.requiredHours || 486,
-          user.active !== false, user.archived === true]);
+          user.officialHours || null, user.active !== false, user.archived === true]);
       }
     }
     await client.query('COMMIT');

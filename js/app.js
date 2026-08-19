@@ -315,6 +315,7 @@ function modalTraineeForm(){
           <div class="field"><label>HTE / Company</label><input type="text" name="company" value="${t?esc(t.company||''):''}"></div>
           <div class="field"><label>Company Supervisor</label><input type="text" name="supervisor" value="${t?esc(t.supervisor||''):''}"></div>
           <div class="field"><label>Required Hours</label><input type="number" name="requiredHours" value="${t?t.requiredHours||486:486}"></div>
+          <div class="field"><label>Official Hours</label><input type="text" name="officialHours" value="${t?esc(t.officialHours||''):''}" placeholder="e.g. 8:00 AM - 5:00 PM"></div>
           <div class="field"><label>${editing?'New Password (optional)':'Temporary Password'}</label><input type="text" name="password" ${editing?'':'required'} placeholder="${editing?'Leave blank to keep current':'e.g. Welcome123'}"></div>
         </div>
         <div class="modal-close-row">
@@ -340,7 +341,7 @@ function bindModalEvents(user){
         id: uid('u'), role:'trainee', name: fd.get('name').trim(), email, password: fd.get('password')||'Welcome123',
         status:'approved', createdAt: todayStr(), theme:'light', photo:null,
         studentId: fd.get('studentId')||'', campus: fd.get('campus')||'', program: fd.get('program')||'', block: fd.get('block')||'',
-        company: fd.get('company')||'', supervisor: fd.get('supervisor')||'', coordinatorId: user.id, requiredHours: Number(fd.get('requiredHours'))||486,
+        company: fd.get('company')||'', supervisor: fd.get('supervisor')||'', coordinatorId: user.id, requiredHours: Number(fd.get('requiredHours'))||486, officialHours: fd.get('officialHours')||'',
         active:true, archived:false, addedByCoordinator:true
       };
       DB.users.push(nu);
@@ -351,7 +352,7 @@ function bindModalEvents(user){
       if(t){
         t.name = fd.get('name').trim(); t.email = email; t.studentId = fd.get('studentId')||''; t.campus = fd.get('campus')||'';
         t.program = fd.get('program')||''; t.block = fd.get('block')||''; t.company = fd.get('company')||''; t.supervisor = fd.get('supervisor')||'';
-        t.requiredHours = Number(fd.get('requiredHours'))||486;
+        t.requiredHours = Number(fd.get('requiredHours'))||486; t.officialHours = fd.get('officialHours')||'';
         const pw = fd.get('password'); if(pw) t.password = pw;
         await saveDB('users');
         await pushAudit('Updated trainee', t.name, `Updated by coordinator ${user.name}`);
